@@ -1,5 +1,5 @@
 from apswutils import Database
-from apswutils.utils import sqlite3
+import apsw
 import pytest
 
 
@@ -37,5 +37,5 @@ def test_database_close(tmpdir, memory):
         db = Database(str(tmpdir / "test.db"))
     assert db.execute("select 1 + 1").fetchone()[0] == 2
     db.close()
-    with pytest.raises(sqlite3.ProgrammingError):
+    with pytest.raises(apsw.ConnectionClosedError):
         db.execute("select 1 + 1")
