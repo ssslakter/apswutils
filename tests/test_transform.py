@@ -189,10 +189,9 @@ def test_transform_sql_table_with_no_primary_key(
     with fresh_db.tracer(tracer):
         dogs.transform(**params)
     # We always use foreign keys
-    assert ("PRAGMA foreign_keys=off;", None) in captured
+    assert ("PRAGMA foreign_keys", None) in captured
     assert captured[-2] == ("PRAGMA foreign_key_check;", None)
     assert captured[-1] == ("PRAGMA foreign_keys=on;", None)
-
 
 def test_transform_sql_with_no_primary_key_to_primary_key_of_id(fresh_db):
     dogs = fresh_db["dogs"]

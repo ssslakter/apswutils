@@ -13,7 +13,18 @@ import apsw.ext
 import apsw.bestpractice
 
 # TODO restore once all tests are passing
-# apsw.bestpractice.apply(apsw.bestpractice.recommended)
+# We don't use apsw.bestpractice.connection_dqs because sqlite-utils 
+# allowed doublequotes
+#     apsw.bestpractice.connection_recursive_triggers,
+apsw.bestpractice.apply((
+    apsw.bestpractice.connection_busy_timeout,
+    # apsw.bestpractice.connection_dqs 
+    apsw.bestpractice.connection_enable_foreign_keys,
+    apsw.bestpractice.connection_optimize,
+    # apsw.bestpractice.connection_recursive_triggers, # Allow permissive
+    apsw.bestpractice.connection_wal,
+    apsw.bestpractice.library_logging
+))
 
 try: from sqlite_dump import iterdump
 except ImportError: iterdump = None
