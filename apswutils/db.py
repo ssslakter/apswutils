@@ -2741,14 +2741,14 @@ class Table(Queryable):
             table=self.name, sets=", ".join(sets), wheres=" and ".join(wheres)
         )
         sql += ' RETURNING *'
-        records = []
+        self.result = []
         try:
             cursor = self.db.execute(sql, args)
-            rowcount = cursor.rowcount
-            if cursor.description is not None:
-                columns = [d[0] for d in cursor.description]
-                for row in cursor:
-                    records.append(dict(zip(columns, row)))            
+            try: columns = [c[0] for c in cursor.description]
+            except apsw.ExecutionCompleteError: return self
+
+            for row in cursor:
+                self.result.append(dict(zip(columns, row)))
         except OperationalError as e:
             if alter and (" column" in e.args[0]):
                 # Attempt to add any missing columns, then try again
@@ -2758,7 +2758,6 @@ class Table(Queryable):
                 raise
 
         self.last_pk = pk_values[0] if len(pks) == 1 else pk_values
-        self.result = records
         return self
 
     def build_insert_queries_and_params(
