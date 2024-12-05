@@ -1,4 +1,4 @@
-from sqlite_minutils import Database
+from apswutils import Database
 import sqlite3
 import pathlib
 import pytest

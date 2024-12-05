@@ -1,4 +1,4 @@
-from sqlite_minutils.db import Index
+from apswutils.db import Index
 import pytest
 
 

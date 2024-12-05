@@ -1,5 +1,5 @@
-from sqlite_minutils.db import ForeignKey
-from sqlite_minutils.utils import OperationalError
+from apswutils.db import ForeignKey
+from apswutils.utils import OperationalError
 from sqlite3 import IntegrityError
 import pytest
 

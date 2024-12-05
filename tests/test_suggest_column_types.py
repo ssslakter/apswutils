@@ -1,6 +1,6 @@
 import pytest
 from collections import OrderedDict
-from sqlite_minutils.utils import suggest_column_types
+from apswutils.utils import suggest_column_types
 
 
 @pytest.mark.parametrize(

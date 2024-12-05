@@ -1,5 +1,5 @@
 import pytest
-from sqlite_minutils.utils import OperationalError
+from apswutils.utils import OperationalError
 
 
 def test_create_view(fresh_db):

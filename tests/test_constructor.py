@@ -1,5 +1,5 @@
-from sqlite_minutils import Database
-from sqlite_minutils.utils import sqlite3
+from apswutils import Database
+from apswutils.utils import sqlite3
 import pytest
 
 

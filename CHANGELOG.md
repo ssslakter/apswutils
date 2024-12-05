@@ -1,5 +1,13 @@
 # Release notes
 
+## 5???
+
+### Breaking changes
+
+- Migrate from sqlite-minutils
+- Change import path
+- Use X instead of OperationalError
+
 
 ## 4.0.3
 

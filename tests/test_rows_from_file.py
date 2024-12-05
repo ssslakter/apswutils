@@ -1,4 +1,4 @@
-from sqlite_minutils.utils import rows_from_file, Format, RowError
+from apswutils.utils import rows_from_file, Format, RowError
 from io import BytesIO, StringIO
 import pytest
 

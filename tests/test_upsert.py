@@ -1,4 +1,4 @@
-from sqlite_minutils.db import PrimaryKeyRequired
+from apswutils.db import PrimaryKeyRequired
 import pytest
 
 

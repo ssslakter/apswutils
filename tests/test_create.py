@@ -1,4 +1,4 @@
-from sqlite_minutils.db import (
+from apswutils.db import (
     Index,
     Database,
     DescIndex,
@@ -9,7 +9,7 @@ from sqlite_minutils.db import (
     Table,
     View,
 )
-from sqlite_minutils.utils import hash_record, sqlite3
+from apswutils.utils import hash_record, sqlite3
 import collections
 import datetime
 import decimal

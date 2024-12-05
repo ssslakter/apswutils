@@ -1,4 +1,4 @@
-from sqlite_minutils import utils
+from apswutils import utils
 import csv
 import io
 import pytest

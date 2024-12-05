@@ -3,7 +3,7 @@ import json
 
 import pytest
 
-from sqlite_minutils.db import NotFoundError
+from apswutils.db import NotFoundError
 
 
 ## Updates where nothing changes

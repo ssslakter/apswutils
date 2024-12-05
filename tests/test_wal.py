@@ -1,5 +1,5 @@
 import pytest
-from sqlite_minutils import Database
+from apswutils import Database
 
 
 @pytest.fixture

@@ -1,4 +1,4 @@
-from sqlite_minutils import Database
+from apswutils import Database
 
 
 def test_attach(tmpdir):

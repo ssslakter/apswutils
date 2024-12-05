@@ -1,4 +1,4 @@
-from sqlite_minutils.db import ForeignKey, NoObviousTable
+from apswutils.db import ForeignKey, NoObviousTable
 import pytest
 
 

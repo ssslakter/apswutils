@@ -1,4 +1,4 @@
-from sqlite_minutils.db import NoTable
+from apswutils.db import NoTable
 import datetime
 import pytest
 

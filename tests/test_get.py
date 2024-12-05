@@ -1,5 +1,5 @@
 import pytest
-from sqlite_minutils.db import NotFoundError
+from apswutils.db import NotFoundError
 
 
 def test_get_rowid(fresh_db):

@@ -1394,7 +1394,7 @@ class Table(Queryable):
     #: The primary key of the last inserted, updated or selected row.
     last_pk: Optional[Any] = None
     # This allows us to preserve the historical design of the Table class
-    # in sqlite-minutils while also introducting use of RETURNING *.
+    # in apswutils while also introducting use of RETURNING *.
     result: List[Dict] = []    
 
     def __init__(

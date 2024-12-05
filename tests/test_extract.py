@@ -1,4 +1,4 @@
-from sqlite_minutils.db import InvalidColumns
+from apswutils.db import InvalidColumns
 import itertools
 import pytest
 
