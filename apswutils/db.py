@@ -276,8 +276,7 @@ class Database:
             self.conn.__enter__ = __conn_enter__
             self.conn.__exit__ = __conn_exit__
         self._tracer = tracer
-        if recursive_triggers:
-            self.execute("PRAGMA recursive_triggers=on;")
+        self.conn.pragma('recursive_triggers', recursive_triggers)
         self._registered_functions: set = set()
         self.use_counts_table = use_counts_table
         self.strict = strict
