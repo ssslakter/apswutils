@@ -21,7 +21,7 @@ apsw.bestpractice.apply((
     # apsw.bestpractice.connection_dqs 
     apsw.bestpractice.connection_enable_foreign_keys,
     apsw.bestpractice.connection_optimize,
-    # apsw.bestpractice.connection_recursive_triggers, # Allow permissive
+    apsw.bestpractice.connection_recursive_triggers, # Allow permissive
     apsw.bestpractice.connection_wal,
     apsw.bestpractice.library_logging
 ))
@@ -1731,20 +1731,18 @@ class Table(Queryable):
             column_order=column_order,
             keep_table=keep_table,
         )
-        pragma_foreign_keys_was_on = self.db.execute("PRAGMA foreign_keys").fetchone()[
-            0
-        ]
+        pragma_foreign_keys_was_on = self.db.conn.pragma('foreign_keys')
         try:
             if pragma_foreign_keys_was_on:
-                self.db.execute("PRAGMA foreign_keys=off;")
+                self.db.conn.pragma('foreign_keys', 0)
             for sql in sqls:
                 self.db.execute(sql)
             # Run the foreign_key_check before we commit
             if pragma_foreign_keys_was_on:
-                self.db.execute("PRAGMA foreign_key_check;")
+                self.db.conn.pragma('foreign_key_check')
         finally:
             if pragma_foreign_keys_was_on:
-                self.db.execute("PRAGMA foreign_keys=on;")
+                self.db.conn.pragma('foreign_keys', 1)
         return self
 
     def transform_sql(
