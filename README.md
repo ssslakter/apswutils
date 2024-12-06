@@ -224,3 +224,10 @@ except: print("Delete succeeded!")
 ```
 
     Delete succeeded!
+
+## Differences from sqlite-utils and sqlite-minutils
+
+- WAL is the default
+- Setting `Database(recursive_triggers=False)` works as expected
+- Primary keys must be set on a table for it to be a target of a foreign
+  key

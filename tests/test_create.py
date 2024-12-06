@@ -486,7 +486,7 @@ def test_add_foreign_keys(fresh_db):
 
 def test_add_column_foreign_key(fresh_db):
     fresh_db.create_table("dogs", {"name": str})
-    fresh_db.create_table("breeds", {"name": str})
+    fresh_db.create_table("breeds", {"name": str}, pk='rowid')
     fresh_db["dogs"].add_column("breed_id", fk="breeds")
     assert fresh_db["dogs"].schema == (
         'CREATE TABLE "dogs" (\n'

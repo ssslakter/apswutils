@@ -15,7 +15,6 @@ import apsw.bestpractice
 # TODO restore once all tests are passing
 # We don't use apsw.bestpractice.connection_dqs because sqlite-utils 
 # allowed doublequotes
-#     apsw.bestpractice.connection_recursive_triggers,
 apsw.bestpractice.apply((
     apsw.bestpractice.connection_busy_timeout,
     # apsw.bestpractice.connection_dqs 
