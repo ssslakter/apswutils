@@ -254,7 +254,7 @@ class Database:
         if memory_name:
             uri = "file:{}?mode=memory&cache=shared".format(memory_name)
             self.conn = sqlite3.Connection(
-                uri
+                uri, flags=apsw.SQLITE_OPEN_URI|apsw.SQLITE_OPEN_READWRITE
             )
         elif memory or filename_or_conn == ":memory:":
             self.conn = sqlite3.Connection(":memory:")
