@@ -364,16 +364,18 @@ class Database:
             kwargs = {}
             registered = False
             if deterministic:
-                # Try this, but fall back if sqlite3.NotSupportedError
+                # Try this, but fall back if apsw.Error
                 try:
-                    self.conn.create_function(
-                        fn_name, arity, fn, **dict(kwargs, deterministic=True)
+                    self.conn.create_scalar_function(
+                        fn_name, fn, arity,  **dict(kwargs, deterministic=True)
                     )
                     registered = True
-                except sqlite3.NotSupportedError:
+                except sqlite3.Error:  # Remember, sqlite3 here is actually apsw
+                    # TODO Find the precise error, sqlite-minutils used sqlite3.NotSupportedError
+                    # but as this isn't defined in APSW we fall back to apsw.Error
                     pass
             if not registered:
-                self.conn.create_function(fn_name, arity, fn, **kwargs)
+                self.conn.create_scalar_function(fn_name, fn, arity, **kwargs)
             self._registered_functions.add((fn_name, arity))
             return fn
 

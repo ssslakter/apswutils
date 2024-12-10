@@ -43,14 +43,14 @@ def test_register_function_deterministic(fresh_db):
 
 def test_register_function_deterministic_tries_again_if_exception_raised(fresh_db):
     fresh_db.conn = MagicMock()
-    fresh_db.conn.create_function = MagicMock()
+    fresh_db.conn.create_scalar_function = MagicMock()
 
     @fresh_db.register_function(deterministic=True)
     def to_lower_2(s):
         return s.lower()
 
-    fresh_db.conn.create_function.assert_called_with(
-        "to_lower_2", 1, to_lower_2, deterministic=True
+    fresh_db.conn.create_scalar_function.assert_called_with(
+        "to_lower_2", to_lower_2, 1, deterministic=True
     )
 
     first = True
@@ -60,20 +60,20 @@ def test_register_function_deterministic_tries_again_if_exception_raised(fresh_d
         nonlocal first
         if first:
             first = False
-            raise sqlite3.NotSupportedError()
+            raise sqlite3.Error()
 
     # But if sqlite3.NotSupportedError is raised, it tries again
-    fresh_db.conn.create_function.reset_mock()
-    fresh_db.conn.create_function.side_effect = side_effect
+    fresh_db.conn.create_scalar_function.reset_mock()
+    fresh_db.conn.create_scalar_function.side_effect = side_effect
 
     @fresh_db.register_function(deterministic=True)
     def to_lower_3(s):
         return s.lower()
 
     # Should have been called once with deterministic=True and once without
-    assert fresh_db.conn.create_function.call_args_list == [
-        call("to_lower_3", 1, to_lower_3, deterministic=True),
-        call("to_lower_3", 1, to_lower_3),
+    assert fresh_db.conn.create_scalar_function.call_args_list == [
+        call("to_lower_3", to_lower_3, 1, deterministic=True),
+        call("to_lower_3", to_lower_3, 1),
     ]
 
 
