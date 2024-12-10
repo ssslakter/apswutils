@@ -12,15 +12,13 @@ import uuid
 import apsw.ext
 import apsw.bestpractice
 
-# TODO restore once all tests are passing
 # We don't use apsw.bestpractice.connection_dqs because sqlite-utils 
 # allowed doublequotes
 apsw.bestpractice.apply((
     apsw.bestpractice.connection_busy_timeout,
-    # apsw.bestpractice.connection_dqs 
     apsw.bestpractice.connection_enable_foreign_keys,
     apsw.bestpractice.connection_optimize,
-    apsw.bestpractice.connection_recursive_triggers, # Allow permissive
+    apsw.bestpractice.connection_recursive_triggers,
     apsw.bestpractice.connection_wal,
     apsw.bestpractice.library_logging
 ))
@@ -253,6 +251,8 @@ class Database:
         ), "Either specify a filename_or_conn or pass memory=True"
         if memory_name:
             uri = "file:{}?mode=memory&cache=shared".format(memory_name)
+            # The flags being set allow apswutils to maintain the same behavior here
+            # as sqlite-minutils
             self.conn = sqlite3.Connection(
                 uri, flags=apsw.SQLITE_OPEN_URI|apsw.SQLITE_OPEN_READWRITE
             )
@@ -279,8 +279,6 @@ class Database:
         self._registered_functions: set = set()
         self.use_counts_table = use_counts_table
         self.strict = strict
-        # self.execute('PRAGMA foreign_keys=on;')
-
 
     def close(self):
         "Close the SQLite connection, and the underlying database file"
