@@ -29,7 +29,9 @@ def test_recreate(tmp_path, use_path, create_file_first):
     if create_file_first:
         db = Database(filepath)
         db["t1"].insert({"foo": "bar"})
-        assert ["t1"] == db.table_names()
+        assert "t1" in db.table_names()
         db.close()
     Database(filepath, recreate=True)["t2"].insert({"foo": "bar"})
-    assert ["t2"] == Database(filepath).table_names()
+    # Analyze tables like sqlite_stat1 and sqlite_stat4 will be
+    # returns by `.table_names()` so we do an "in" check
+    assert "t2" in Database(filepath).table_names()
