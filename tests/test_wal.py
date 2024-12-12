@@ -25,5 +25,3 @@ def test_enable_disable_wal(db_path_tmpdir):
     assert "wal" == db.journal_mode
     db["test"].insert({"foo": "bar"})
     assert "test.db-wal" in [f.basename for f in tmpdir.listdir()]
-
-

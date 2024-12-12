@@ -1284,7 +1284,7 @@ class Queryable:
         if offset is not None:
             sql += f" offset {offset}"
         cursor = self.db.execute(sql, where_args or [])
-        # If no records found, raise a NotFoundError
+        # If no records found, return empty list
         try: columns = [c[0] for c in cursor.description]
         except apsw.ExecutionCompleteError: return []
         for row in cursor:
