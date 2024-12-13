@@ -231,3 +231,14 @@ except: print("Delete succeeded!")
 - Setting `Database(recursive_triggers=False)` works as expected
 - Primary keys must be set on a table for it to be a target of a foreign
   key
+- Errors have been changed minimally, future PRs will change them
+  incrementally
+
+## Differences in error handling
+
+| Old/sqlite3/dbapi | New/APSW | Reason |
+|----|----|----|
+| IntegrityError | apsw.ConstraintError | Caused due to SQL transformation blocked on database constraints |
+| sqlite3.dbapi2.OperationalError | apsw.Error | General error, OperationalError is now proxied to apsw.Error |
+| sqlite3.dbapi2.OperationalError | apsw.SQLError | When an error is due to flawed SQL statements |
+| sqlite3.ProgrammingError | apsw.ConnectionClosedError | Caused by an improperly closed database file |
