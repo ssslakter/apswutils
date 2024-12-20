@@ -29,3 +29,9 @@ def test_get_not_found(argument, expected_msg, fresh_db):
         fresh_db["dogs"].get(argument)
     if expected_msg is not None:
         assert expected_msg == excinfo.value.args[0]
+
+def test_get_success(fresh_db):
+    fresh_db["dogs"].insert(
+        {"id": 1, "name": "Cleo", "age": 4, "is_good": True}, pk="id"
+    )
+    assert fresh_db["dogs"].get(1)['name'] == 'Cleo'

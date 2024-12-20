@@ -12,23 +12,12 @@ import sys
 import json
 from typing import Dict, cast, BinaryIO, Iterable, Optional, Tuple, Type
 
-try:
-    import pysqlite3 as sqlite3  # noqa: F401
-    from pysqlite3 import dbapi2  # noqa: F401
-
-    OperationalError = dbapi2.OperationalError
-except ImportError:
-    try:
-        import sqlean as sqlite3  # noqa: F401
-        from sqlean import dbapi2  # noqa: F401
-
-        OperationalError = dbapi2.OperationalError
-    except ImportError:
-        import sqlite3  # noqa: F401
-        from sqlite3 import dbapi2  # noqa: F401
-
-        OperationalError = dbapi2.OperationalError
-
+# TODO: Change use of apsw as a shim for sqlite3 more explicit
+#       In order to keep this PR minimal, we use sqlite3  as a shim for APSW
+import apsw as sqlite3
+# TODO: Replace use of OperationalError with more explicit apsw errors
+#       In order to keep this PR minimal, we use OperationalError  as a shim for apsw.Error
+OperationalError = sqlite3.Error
 
 SPATIALITE_PATHS = (
     "/usr/lib/x86_64-linux-gnu/mod_spatialite.so",

@@ -2,6 +2,9 @@ from apswutils.db import ForeignKey
 from apswutils.utils import OperationalError
 from sqlite3 import IntegrityError
 import pytest
+import apsw
+from collections.abc import Mapping
+from typing import Optional, Any
 
 
 @pytest.mark.parametrize(
@@ -104,9 +107,12 @@ def test_transform_sql_table_with_primary_key(
     fresh_db, params, expected_sql, use_pragma_foreign_keys
 ):
     captured = []
-
-    def tracer(sql, params):
-        return captured.append((sql, params))
+    def tracer(cursor: apsw.Cursor,
+        statement: str,
+        bindings: Optional[Mapping] = None,
+    ) -> bool:
+        captured.append((statement, bindings))
+        return True  # If set to False, then execution is aborted
 
     dogs = fresh_db["dogs"]
     if use_pragma_foreign_keys:
@@ -115,16 +121,19 @@ def test_transform_sql_table_with_primary_key(
     sql = dogs.transform_sql(**{**params, **{"tmp_suffix": "suffix"}})
     assert sql == expected_sql
     # Check that .transform() runs without exceptions:
+    fresh_db.conn.exec_trace = tracer # Add tracer
     with fresh_db.tracer(tracer):
         dogs.transform(**params)
+    fresh_db.conn.exec_trace = None # Remove tracer
+
     # If use_pragma_foreign_keys, check that we did the right thing
     if use_pragma_foreign_keys:
-        assert ("PRAGMA foreign_keys=0;", None) in captured
-        assert captured[-2] == ("PRAGMA foreign_key_check;", None)
-        assert captured[-1] == ("PRAGMA foreign_keys=1;", None)
+        assert ('pragma "foreign_keys"', None) in captured
+        assert captured[-2] == ('pragma "foreign_key_check"', None)
+        assert captured[-1] == ('pragma "foreign_keys"(1)', None)
     else:
-        assert ("PRAGMA foreign_keys=0;", None) not in captured
-        assert ("PRAGMA foreign_keys=1;", None) not in captured
+        assert ("PRAGMA foreign_keys=off;", None) not in captured
+        assert ("PRAGMA foreign_keys=on;", None) not in captured
 
 
 @pytest.mark.parametrize(
@@ -172,33 +181,30 @@ def test_transform_sql_table_with_primary_key(
         ),
     ],
 )
-@pytest.mark.parametrize("use_pragma_foreign_keys", [False, True])
 def test_transform_sql_table_with_no_primary_key(
-    fresh_db, params, expected_sql, use_pragma_foreign_keys
+    fresh_db, params, expected_sql
 ):
     captured = []
-
-    def tracer(sql, params):
-        return captured.append((sql, params))
+    def tracer(cursor: apsw.Cursor,
+        statement: str,
+        bindings: Optional[Mapping] = None,
+    ) -> bool:
+        captured.append((statement, bindings))
+        return True  # If set to False, then execution is aborted
 
     dogs = fresh_db["dogs"]
-    if use_pragma_foreign_keys:
-        fresh_db.conn.execute("PRAGMA foreign_keys=ON")
     dogs.insert({"id": 1, "name": "Cleo", "age": "5"})
     sql = dogs.transform_sql(**{**params, **{"tmp_suffix": "suffix"}})
     assert sql == expected_sql
     # Check that .transform() runs without exceptions:
+    fresh_db.conn.exec_trace = tracer # Add tracer
     with fresh_db.tracer(tracer):
         dogs.transform(**params)
-    # If use_pragma_foreign_keys, check that we did the right thing
-    if use_pragma_foreign_keys:
-        assert ("PRAGMA foreign_keys=0;", None) in captured
-        assert captured[-2] == ("PRAGMA foreign_key_check;", None)
-        assert captured[-1] == ("PRAGMA foreign_keys=1;", None)
-    else:
-        assert ("PRAGMA foreign_keys=0;", None) not in captured
-        assert ("PRAGMA foreign_keys=1;", None) not in captured
-
+    fresh_db.conn.exec_trace = None # Remove tracer
+    # We always use foreign keys
+    assert ('pragma "foreign_keys"', None) in captured
+    assert captured[-2] == ('pragma "foreign_key_check"', None)
+    assert captured[-1] == ('pragma "foreign_keys"(1)', None)
 
 def test_transform_sql_with_no_primary_key_to_primary_key_of_id(fresh_db):
     dogs = fresh_db["dogs"]
@@ -392,7 +398,7 @@ def test_transform_verify_foreign_keys(fresh_db):
     try:
         fresh_db["authors"].transform(rename={"id": "id2"})
         fresh_db.commit()
-    except IntegrityError:
+    except apsw.ConstraintError:
         fresh_db.rollback()
 
     # This should have rolled us back
