@@ -19,12 +19,7 @@ def test_get_primary_key(fresh_db):
 
 @pytest.mark.parametrize(
     "argument,expected_msg",
-    [
-        (100, None),
-        (None, None),
-        ((1, 2), "Need 1 primary key value"),
-        ("2", None)
-    ],
+    [(100, None), (None, None), ((1, 2), "Need 1 primary key value"), ("2", None)],
 )
 def test_get_not_found(argument, expected_msg, fresh_db):
     fresh_db["dogs"].insert(
