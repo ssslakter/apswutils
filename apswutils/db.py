@@ -857,7 +857,7 @@ class Database:
                 )
             if column_name in foreign_keys_by_column:
                 column_extras.append(
-                    "REFERENCES [{other_table}]([{other_column}])".format(
+                    "REFERENCES [{other_table}]([{other_column}]) ON UPDATE CASCADE ON DELETE CASCADE".format(
                         other_table=foreign_keys_by_column[column_name].other_table,
                         other_column=foreign_keys_by_column[column_name].other_column,
                     )
