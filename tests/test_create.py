@@ -9,7 +9,7 @@ from apswutils.db import (
     Table,
     View,
 )
-from apswutils.utils import hash_record, sqlite3
+from apswutils.utils import hash_record
 import collections
 import datetime
 import decimal
@@ -717,7 +717,7 @@ def test_columns_not_in_first_record_should_not_cause_batch_to_be_too_large(fres
         fresh_db["too_many_columns"].insert_all(
             records, alter=True, batch_size=batch_size
         )
-    except sqlite3.OperationalError:
+    except OperationalError:
         raise
 
 
@@ -1312,7 +1312,7 @@ def test_rename_table(fresh_db):
     assert ["renamed"] == fresh_db.table_names()
     assert [{"foo": "bar"}] == list(fresh_db["renamed"].rows)
     # Should error if table does not exist:
-    with pytest.raises(sqlite3.SQLError):
+    with pytest.raises(apsw.SQLError):
         fresh_db.rename_table("does_not_exist", "renamed")
 
 

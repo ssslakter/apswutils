@@ -1,6 +1,5 @@
 from apswutils.db import ForeignKey
 from apswutils.utils import OperationalError
-from sqlite3 import IntegrityError
 import pytest
 import apsw
 from collections.abc import Mapping
@@ -391,14 +390,14 @@ def test_transform_verify_foreign_keys(fresh_db):
     fresh_db["books"].insert(
         {"id": 1, "title": "Book", "author_id": 3}, pk="id", foreign_keys={"author_id"}
     )
-    # Renaming the id column on authors should break everything with an IntegrityError
+    # Renaming the id column on authors should break everything with an SQLError
     # The old error didn't match the Sqlite docs.
     # We use a transaction to constrain and rollback the error.
     fresh_db.begin()
     try:
         fresh_db["authors"].transform(rename={"id": "id2"})
         fresh_db.commit()
-    except apsw.ConstraintError:
+    except apsw.SQLError:
         fresh_db.rollback()
 
     # This should have rolled us back
