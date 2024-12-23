@@ -11,13 +11,11 @@ import os
 import sys
 import json
 from typing import Dict, cast, BinaryIO, Iterable, Optional, Tuple, Type
+import apsw
 
-# TODO: Change use of apsw as a shim for sqlite3 more explicit
-#       In order to keep this PR minimal, we use sqlite3  as a shim for APSW
-import apsw as sqlite3
 # TODO: Replace use of OperationalError with more explicit apsw errors
 #       In order to keep this PR minimal, we use OperationalError  as a shim for apsw.Error
-OperationalError = sqlite3.Error
+OperationalError = apsw.Error
 
 SPATIALITE_PATHS = (
     "/usr/lib/x86_64-linux-gnu/mod_spatialite.so",
