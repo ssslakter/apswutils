@@ -1,27 +1,25 @@
 # This file is from sqlite-utils and copyright and license is the same as that project
 __all__ = ['Database', 'Queryable', 'Table', 'View']
 
-from .utils import ( chunks, hash_record, OperationalError, suggest_column_types, types_for_column_types, column_affinity, find_spatialite,)
-import binascii
+from .utils import chunks, hash_record, OperationalError, suggest_column_types, types_for_column_types, column_affinity, find_spatialite
 from collections import namedtuple
 from collections.abc import Mapping
-import contextlib, datetime, decimal, inspect, itertools, json, os, pathlib, re, secrets, textwrap
-from typing import ( cast, Any, Callable, Dict, Generator, Iterable, Union, Optional, List, Tuple,Iterator)
+from typing import cast, Any, Callable, Dict, Generator, Iterable, Union, Optional, List, Tuple, Iterator
 from functools import cache
-import uuid
-import apsw
-import apsw.ext
-import apsw.bestpractice
+import contextlib, datetime, decimal, inspect, itertools, json, os, pathlib, re, secrets, textwrap, binascii, uuid, logging
+import apsw.ext, apsw.bestpractice
 
-# We don't use apsw.bestpractice.connection_dqs because sqlite-utils 
-# allowed doublequotes
+logger = logging.getLogger('apsw')
+logger.setLevel(logging.ERROR)
+apsw.ext.log_sqlite(logger=logger)
+
+# We don't use bestpractice.connection_dqs because sqlite-utils allowed doublequotes
 apsw.bestpractice.apply((
     apsw.bestpractice.connection_busy_timeout,
     apsw.bestpractice.connection_enable_foreign_keys,
     apsw.bestpractice.connection_optimize,
     apsw.bestpractice.connection_recursive_triggers,
-    apsw.bestpractice.connection_wal,
-    apsw.bestpractice.library_logging
+    apsw.bestpractice.connection_wal
 ))
 
 try: from sqlite_dump import iterdump
@@ -445,6 +443,18 @@ class Database:
         if self._tracer:
             self._tracer(sql, None)
         return self.conn.execute(sql)
+
+    def modify_table_schema(self, tbl_name:str, schema:str):
+        """
+        Modify table `tbl_name` to use `schema`.
+
+        :param tbl_name: Table to modify schema
+        :param schema: New schema
+        """
+        self.execute("PRAGMA writable_schema=ON")
+        self.execute(f"UPDATE sqlite_master SET sql = '{schema}' WHERE type='table' AND name='{tbl_name}'")
+        self.execute("PRAGMA writable_schema=OFF")
+        self.execute("VACUUM") # force sqlite to reload connections
 
     def __hash__(self): return hash(self.conn)
 

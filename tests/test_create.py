@@ -303,7 +303,7 @@ def test_self_referential_foreign_key(fresh_db):
     assert (
         "CREATE TABLE [test_table] (\n"
         "   [id] INTEGER PRIMARY KEY,\n"
-        "   [ref] INTEGER REFERENCES [test_table]([id])\n"
+        "   [ref] INTEGER REFERENCES [test_table]([id]) ON UPDATE CASCADE ON DELETE CASCADE\n"
         ")"
     ) == table.schema
 
@@ -491,7 +491,7 @@ def test_add_column_foreign_key(fresh_db):
     assert fresh_db["dogs"].schema == (
         'CREATE TABLE "dogs" (\n'
         "   [name] TEXT,\n"
-        "   [breed_id] INTEGER REFERENCES [breeds]([rowid])\n"
+        "   [breed_id] INTEGER REFERENCES [breeds]([rowid]) ON UPDATE CASCADE ON DELETE CASCADE\n"
         ")"
     )
     # And again with an explicit primary key column
@@ -500,8 +500,8 @@ def test_add_column_foreign_key(fresh_db):
     assert fresh_db["dogs"].schema == (
         'CREATE TABLE "dogs" (\n'
         "   [name] TEXT,\n"
-        "   [breed_id] INTEGER REFERENCES [breeds]([rowid]),\n"
-        "   [subbreed_id] TEXT REFERENCES [subbreeds]([primkey])\n"
+        "   [breed_id] INTEGER REFERENCES [breeds]([rowid]) ON UPDATE CASCADE ON DELETE CASCADE,\n"
+        "   [subbreed_id] TEXT REFERENCES [subbreeds]([primkey]) ON UPDATE CASCADE ON DELETE CASCADE\n"
         ")"
     )
 
@@ -514,7 +514,7 @@ def test_add_foreign_key_guess_table(fresh_db):
     assert fresh_db["dogs"].schema == (
         'CREATE TABLE "dogs" (\n'
         "   [name] TEXT,\n"
-        "   [breed_id] INTEGER REFERENCES [breeds]([id])\n"
+        "   [breed_id] INTEGER REFERENCES [breeds]([id]) ON UPDATE CASCADE ON DELETE CASCADE\n"
         ")"
     )
 
