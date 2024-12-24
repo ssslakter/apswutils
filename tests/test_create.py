@@ -4,7 +4,6 @@ from apswutils.db import (
     DescIndex,
     AlterError,
     NoObviousTable,
-    OperationalError,
     ForeignKey,
     Table,
     View,
@@ -717,7 +716,7 @@ def test_columns_not_in_first_record_should_not_cause_batch_to_be_too_large(fres
         fresh_db["too_many_columns"].insert_all(
             records, alter=True, batch_size=batch_size
         )
-    except OperationalError:
+    except apsw.SQLError:
         raise
 
 
@@ -817,7 +816,7 @@ def test_create_index_find_unique_name(fresh_db):
     table.insert({"id": 1})
     table.create_index(["id"])
     # Without find_unique_name should error
-    with pytest.raises(OperationalError, match="index idx_t_id already exists"):
+    with pytest.raises(apsw.SQLError, match="index idx_t_id already exists"):
         table.create_index(["id"])
     # With find_unique_name=True it should work
     table.create_index(["id"], find_unique_name=True)
