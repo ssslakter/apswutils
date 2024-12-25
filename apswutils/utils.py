@@ -13,10 +13,6 @@ import json
 from typing import Dict, cast, BinaryIO, Iterable, Optional, Tuple, Type
 import apsw
 
-# TODO: Replace use of OperationalError with more explicit apsw errors
-#       In order to keep this PR minimal, we use OperationalError  as a shim for apsw.Error
-OperationalError = apsw.Error
-
 SPATIALITE_PATHS = (
     "/usr/lib/x86_64-linux-gnu/mod_spatialite.so",
     "/usr/lib/aarch64-linux-gnu/mod_spatialite.so",

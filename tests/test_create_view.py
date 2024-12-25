@@ -1,5 +1,5 @@
 import pytest
-from apswutils.utils import OperationalError
+import apsw
 
 
 def test_create_view(fresh_db):
@@ -10,7 +10,7 @@ def test_create_view(fresh_db):
 
 def test_create_view_error(fresh_db):
     fresh_db.create_view("bar", "select 1 + 1")
-    with pytest.raises(OperationalError):
+    with pytest.raises(apsw.SQLError):
         fresh_db.create_view("bar", "select 1 + 2")
 
 

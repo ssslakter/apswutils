@@ -1,5 +1,4 @@
 from apswutils.db import ForeignKey
-from apswutils.utils import OperationalError
 import pytest
 import apsw
 from collections.abc import Mapping

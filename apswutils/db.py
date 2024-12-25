@@ -1,13 +1,13 @@
 # This file is from sqlite-utils and copyright and license is the same as that project
 __all__ = ['Database', 'Queryable', 'Table', 'View']
 
-from .utils import chunks, hash_record, OperationalError, suggest_column_types, types_for_column_types, column_affinity, find_spatialite
+from .utils import chunks, hash_record, suggest_column_types, types_for_column_types, column_affinity, find_spatialite
 from collections import namedtuple
 from collections.abc import Mapping
 from typing import cast, Any, Callable, Dict, Generator, Iterable, Union, Optional, List, Tuple, Iterator
 from functools import cache
 import contextlib, datetime, decimal, inspect, itertools, json, os, pathlib, re, secrets, textwrap, binascii, uuid, logging
-import apsw.ext, apsw.bestpractice
+import apsw, apsw.ext, apsw.bestpractice
 
 logger = logging.getLogger('apsw')
 logger.setLevel(logging.ERROR)
@@ -684,7 +684,7 @@ class Database:
             sql += " where [table] in ({})".format(", ".join("?" for table in tables))
         try:
             return {r[0]: r[1] for r in self.execute(sql, tables).fetchall()}
-        except OperationalError:
+        except apsw.Error:
             return {}
 
     def reset_counts(self):
@@ -2118,7 +2118,7 @@ class Table(Queryable):
             try:
                 self.db.execute(sql)
                 break
-            except OperationalError as e:
+            except apsw.SQLError as e:
                 # find_unique_name=True - try again if 'index ... already exists'
                 arg = e.args[0]
                 if (
@@ -2769,7 +2769,7 @@ class Table(Queryable):
 
             for row in cursor:
                 self.result.append(dict(zip(columns, row)))
-        except OperationalError as e:
+        except apsw.SQLError as e:
             if alter and (" column" in e.args[0]):
                 # Attempt to add any missing columns, then try again
                 self.add_missing_columns([updates])
@@ -2934,7 +2934,7 @@ class Table(Queryable):
                 except apsw.ExecutionCompleteError: continue
                 for row in cursor:
                     records.append(dict(zip(columns, row)))
-            except OperationalError as e:
+            except apsw.SQLError as e:
                 if alter and (" column" in e.args[0]):
                     # Attempt to add any missing columns, then try again
                     self.add_missing_columns(chunk)
