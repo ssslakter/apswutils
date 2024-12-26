@@ -1,7 +1,7 @@
 # This file is from sqlite-utils and copyright and license is the same as that project
 __all__ = ['Database', 'Queryable', 'Table', 'View']
 
-from .utils import chunks, hash_record, suggest_column_types, types_for_column_types, column_affinity, find_spatialite
+from .utils import chunks, hash_record, suggest_column_types, types_for_column_types, column_affinity, find_spatialite, cursor_row2dict
 from collections import namedtuple
 from collections.abc import Mapping
 from typing import cast, Any, Callable, Dict, Generator, Iterable, Union, Optional, List, Tuple, Iterator
@@ -414,10 +414,8 @@ class Database:
           parameters, or a dictionary for ``where id = :id``
         """
         cursor = self.execute(sql, tuple(params or tuple()))
-        try: columns = [c[0] for c in cursor.description]
-        except apsw.ExecutionCompleteError: return []
-        for row in cursor:
-            yield dict(zip(columns, row))
+        cursor.row_trace = cursor_row2dict
+        for row in cursor: yield row
 
     def execute(
         self, sql: str, parameters: Optional[Union[Iterable, dict]] = None
@@ -1295,11 +1293,8 @@ class Queryable:
         if offset is not None:
             sql += f" offset {offset}"
         cursor = self.db.execute(sql, where_args or [])
-        # If no records found, return empty list
-        try: columns = [c[0] for c in cursor.description]
-        except apsw.ExecutionCompleteError: return []
-        for row in cursor:
-            yield dict(zip(columns, row))
+        cursor.row_trace = cursor_row2dict
+        for row in cursor: yield row
 
     def pks_and_rows_where(
         self,
@@ -2670,10 +2665,8 @@ class Table(Queryable):
             ),
             args,
         )
-        try: columns = [c[0] for c in cursor.description]
-        except apsw.ExecutionCompleteError: return []        
-        for row in cursor:
-            yield dict(zip(columns, row))
+        cursor.row_trace = cursor_row2dict
+        for row in cursor: yield row
 
     def value_or_default(self, key, value):
         return self._defaults[key] if value is DEFAULT else value
@@ -2764,11 +2757,8 @@ class Table(Queryable):
         self.result = []
         try:
             cursor = self.db.execute(sql, args)
-            try: columns = [c[0] for c in cursor.description]
-            except apsw.ExecutionCompleteError: return self
-
-            for row in cursor:
-                self.result.append(dict(zip(columns, row)))
+            cursor.row_trace = cursor_row2dict
+            self.result = [x for x in cursor]
         except apsw.SQLError as e:
             if alter and (" column" in e.args[0]):
                 # Attempt to add any missing columns, then try again
@@ -2930,19 +2920,15 @@ class Table(Queryable):
         for query, params in queries_and_params:
             try:
                 cursor = self.db.execute(query, tuple(params))
-                try: columns = [c[0] for c in cursor.description]
-                except apsw.ExecutionCompleteError: continue
-                for row in cursor:
-                    records.append(dict(zip(columns, row)))
+                cursor.row_trace = cursor_row2dict
+                for row in cursor: records.append(row)
             except apsw.SQLError as e:
                 if alter and (" column" in e.args[0]):
                     # Attempt to add any missing columns, then try again
                     self.add_missing_columns(chunk)
                     cursor = self.db.execute(query, params)
-                    try: columns = [c[0] for c in cursor.description]
-                    except apsw.ExecutionCompleteError: continue
-                    for row in cursor:
-                        records.append(dict(zip(columns, row)))
+                    cursor.row_trace = cursor_row2dict
+                    for row in cursor: records.append(row)
                 elif e.args[0] == "too many SQL variables":
                     first_half = chunk[: len(chunk) // 2]
                     second_half = chunk[len(chunk) // 2 :]
