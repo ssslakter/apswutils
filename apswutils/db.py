@@ -415,7 +415,7 @@ class Database:
         """
         cursor = self.execute(sql, tuple(params or tuple()))
         cursor.row_trace = cursor_row2dict
-        for row in cursor: yield row
+        yield from cursor
 
     def execute(
         self, sql: str, parameters: Optional[Union[Iterable, dict]] = None
@@ -1294,7 +1294,7 @@ class Queryable:
             sql += f" offset {offset}"
         cursor = self.db.execute(sql, where_args or [])
         cursor.row_trace = cursor_row2dict
-        for row in cursor: yield row
+        yield from cursor
 
     def pks_and_rows_where(
         self,
@@ -2666,7 +2666,7 @@ class Table(Queryable):
             args,
         )
         cursor.row_trace = cursor_row2dict
-        for row in cursor: yield row
+        yield from cursor
 
     def value_or_default(self, key, value):
         return self._defaults[key] if value is DEFAULT else value
@@ -2758,7 +2758,7 @@ class Table(Queryable):
         try:
             cursor = self.db.execute(sql, args)
             cursor.row_trace = cursor_row2dict
-            self.result = [x for x in cursor]
+            self.result = list(cursor)
         except apsw.SQLError as e:
             if alter and (" column" in e.args[0]):
                 # Attempt to add any missing columns, then try again
@@ -2921,14 +2921,14 @@ class Table(Queryable):
             try:
                 cursor = self.db.execute(query, tuple(params))
                 cursor.row_trace = cursor_row2dict
-                for row in cursor: records.append(row)
+                records += list(cursor)
             except apsw.SQLError as e:
                 if alter and (" column" in e.args[0]):
                     # Attempt to add any missing columns, then try again
                     self.add_missing_columns(chunk)
                     cursor = self.db.execute(query, params)
                     cursor.row_trace = cursor_row2dict
-                    for row in cursor: records.append(row)
+                    records += list(cursor)
                 elif e.args[0] == "too many SQL variables":
                     first_half = chunk[: len(chunk) // 2]
                     second_half = chunk[len(chunk) // 2 :]
