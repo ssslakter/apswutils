@@ -464,3 +464,8 @@ def flatten(row: dict) -> dict:
 IGNORE = object()
 SET_NULL = object()
 
+
+def cursor_row2dict(cursor, row):
+    """Converts a cursor row into a dict with columns as keys"""
+    columns = [d[0] for d in cursor.get_description()]
+    return dict(zip(columns, row))
