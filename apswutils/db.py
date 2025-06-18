@@ -397,11 +397,16 @@ class Database:
         ).strip()
         self.execute(attach_sql)
 
-    def fetchone(self, sql:str, where_args: Optional[Union[Iterable, dict]] = None):
+    def item(self, sql:str, where_args: Optional[Union[Iterable, dict]] = None):
         """
-        Execute ``sql`` and return a single row result
+        Execute ``sql`` and return a single field from a single row
         """
-        return self.execute(sql, where_args or []).fetchone()[0]
+        row = self.execute(sql, (where_args or [])).fetchall()
+        if len(row)==0: raise NotFoundError
+        elif len(row) > 1: raise ValueError(f"Not unique: {len(row)} results")
+        res = row[0]
+        if len(res) > 1: raise ValueError(f"Too many fields: {len(res)} fields")
+        return res[0]
 
     def query(
         self, sql: str, params: Optional[Union[Iterable, dict]] = None
