@@ -1,5 +1,9 @@
 # Release notes
 
+## 0.1.0
+
+- Bump version number due to breaking change
+
 ## 0.0.3
 
 ### Breaking changes
